@@ -149,6 +149,11 @@ example (h : A ∧ (B ∧ C)) : A ∧ B ∧ C := by
   -- does not work with cases
   exact ⟨ha, hb, hc⟩
 
+example (h : A ∧ (B ∧ C)) : A ∧ B ∧ C := by
+  cases h with
+  | intro ha hbc =>
+    exact ⟨ha, hbc⟩
+
 /-
 example (hab : A ∧ B) (hc : C) : A ∧ B ∧ C := by
   cases hab with
