@@ -9,19 +9,29 @@ lemma nonzero_is_succ {n : ℕ} (hn : n ≠ 0) : ∃ n', n = n' + 1 := by
 def divides (a b : ℕ) : Prop := ∃ c : ℕ, b = a * c
 
 lemma divides_2_6 : divides 2 6 := by
+  -- rewrites equality
   rw [divides]
+  -- use a specific number for exists (∃) goal
   use 3
 
 lemma not_divides_2_5 : ¬ divides 2 5 := by
   rw [divides]
   push_neg
   intro c
+  -- `omega` derives contradiction from any assumptions and goals
+  -- of linear equalities and inequalities on natural numbers
   omega
+
+lemma divides_and : divides 2 4 ∧ divides 2 8 := by
+  constructor -- splits `and (∧)` or `iff (↔)` into two goals
+  · sorry
+  · sorry
 
 lemma zero_divides_iff {n : ℕ} : divides 0 n ↔ n = 0 := by
   constructor
   · intro hn
     obtain ⟨m, hm⟩ := hn
+    -- `ring_nf` simplifies and expands multiplication over addition
     ring_nf at hm
     exact hm
   · intro hn
@@ -39,10 +49,7 @@ lemma le_of_divides {n m : ℕ} (hm : m ≠ 0) : divides n m → n ≤ m := by
   · rw [hc] at heq
     ring_nf at heq
     contradiction
-  · obtain ⟨c', hc'⟩ := nonzero_is_succ hc
-    rw [heq, hc']
-    ring_nf
-    omega
+  · sorry
 
 lemma divides_antisymm {n m : ℕ} (dnm : divides n m) (dmn : divides m n) : m = n := by
   by_cases hn : n = 0
@@ -50,50 +57,37 @@ lemma divides_antisymm {n m : ℕ} (dnm : divides n m) (dmn : divides m n) : m =
     rw [zero_divides_iff] at dnm
     rw [hn, dnm]
   · by_cases hm : m = 0
-    · rw [hm] at dmn
-      rw [zero_divides_iff] at dmn
-      omega
+    · sorry
     · have n_le_m : n ≤ m := by
-        apply le_of_divides
-        exact hm
-        exact dnm
+        sorry
       have m_le_n : m ≤ n := by
-        apply le_of_divides
-        exact hn
-        exact dmn
-      omega
+        sorry
+      sorry
 
 lemma divides_one_iff {n : ℕ} : divides n 1 ↔ n = 1 := by
   constructor
   · intro h
     by_cases hn : n = 0
-    · rw [hn] at h
-      rw [zero_divides_iff] at h
-      omega
+    · sorry
     · have h' : divides 1 n := one_divides
-      apply divides_antisymm
-      exact h'
-      exact h
-  · intro h
-    rw [h]
-    rw [divides]
-    use 1
+      sorry
+  · sorry
 
 lemma divides_trans {j k l : ℕ} (hjk : divides j k) (hkl : divides k l) : divides j l := by
   obtain ⟨c, eq_jk⟩ := hjk
-  obtain ⟨d, eq_kl⟩ := hkl
-  use c * d
-  rw [eq_kl, eq_jk]
-  ring_nf
+  sorry
 
 def is_prime (p : ℕ) : Prop :=
   2 ≤ p ∧ ∀ n : ℕ, divides n p → n = 1 ∨ n = p
 
 theorem exists_prime_factor {n : ℕ} (hn : 2 ≤ n) : ∃ p, is_prime p ∧ divides p n := by
+  -- strong induction!
   induction' n using Nat.strongRecOn with n ih
-  · by_cases hprime : is_prime n
-    · exact ⟨n, hprime, ⟨1, by ring_nf⟩⟩
-    · rw [is_prime] at hprime
+  · by_cases hprime : is_prime n -- case analysis on whether n is prime or not
+    · -- n is prime
+      sorry
+    · -- n is not prime
+      rw [is_prime] at hprime
       push_neg at hprime
       obtain ⟨d, hd_dvd_n, hd⟩ := hprime hn
       -- So d divides n, d ≠ 1, and d ≠ n
@@ -102,17 +96,19 @@ theorem exists_prime_factor {n : ℕ} (hn : 2 ≤ n) : ∃ p, is_prime p ∧ div
         rw [hd0] at hd_dvd_n
         rw [zero_divides_iff] at hd_dvd_n
         omega
-      have hd_gt_one : d > 1 := by omega
+      have hd_gt_one : d > 1 := by
+        sorry
       have hd_lt_n : d < n := by
         have n_ne_zero : n ≠ 0 := by omega
         have d_le_n := le_of_divides n_ne_zero hd_dvd_n
         omega
       -- Since d < n and d ≥ 2, we can apply the induction hypothesis to d
-      have hd_ge_two : d ≥ 2 := by omega
-      have ih_p := ih d hd_lt_n hd_ge_two
-      obtain ⟨p, hp, hpd⟩ := ih_p
-      refine ⟨p, hp, ?_⟩
-      exact divides_trans hpd hd_dvd_n
+      have hd_ge_two : d ≥ 2 := by
+        sorry
+      have ih_p : ∃ p, is_prime p ∧ divides p d := by
+        apply ih
+        sorry
+      sorry
 
 def factorial : ℕ → ℕ
   | 0 => 1
@@ -135,16 +131,8 @@ lemma le_divides_factorial {n m : ℕ} (hm : m ≠ 0) (hle : m ≤ n) : divides 
   · exfalso
     omega
   · by_cases hm : m = n + 1
-    · rw [hm]
-      rw [divides]
-      use factorial n
-      rw [factorial]
-      exact Nat.mul_comm _ _
-    · have m_le_n : m ≤ n := by
-        omega
-      apply ih at m_le_n
-      apply divides_trans m_le_n
-      exact factorial_divides_factorial_succ
+    · sorry
+    · sorry
 
 lemma le_is_add_eq (h : m ≤ n) : ∃ k : Nat, n = m + k :=
   Nat.exists_eq_add_of_le h
@@ -175,14 +163,4 @@ theorem infinitude_of_primes (N : ℕ) : ∃ p, N < p ∧ is_prime p := by
     have h' : 1 ≤ factorial N := by
       exact one_le_factorial
     omega
-  obtain ⟨p, hp, p_dvd_M⟩ := exists_prime_factor hM
-  refine ⟨p, ?_, hp⟩
-  by_contra hN'
-  have hN : p ≤ N := by omega
-  have hp2 : 2 ≤ p := hp.1
-  have hp0 : p ≠ 0 := by omega
-  have no_p_dvd_M : ¬ divides p M := by
-    apply not_divides_of_divides_succ
-    · exact hp.1
-    · exact le_divides_factorial hp0 hN
-  contradiction
+  sorry
