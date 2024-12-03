@@ -107,7 +107,8 @@ theorem exists_prime_factor {n : ℕ} (hn : 2 ≤ n) : ∃ p, is_prime p ∧ div
         sorry
       have ih_p : ∃ p, is_prime p ∧ divides p d := by
         apply ih
-        sorry
+        · sorry
+        · sorry
       sorry
 
 def factorial : ℕ → ℕ
@@ -150,12 +151,8 @@ lemma not_divides_of_divides_succ {n m : ℕ} (hn : 2 ≤ n) (h : divides n m) :
     have ineq_cd : d ≤ c := by
       exact Nat.le_of_mul_le_mul_left ineq_n (Nat.zero_lt_of_ne_zero hn0)
     obtain ⟨e, eq_e⟩ := Nat.exists_eq_add_of_le ineq_cd
-    use e
-    rw [eq_e] at eq_c
-    ring_nf at eq_c ⊢
-    omega
-  rw [divides_one_iff] at hn1
-  omega
+    sorry
+  sorry
 
 theorem infinitude_of_primes (N : ℕ) : ∃ p, N < p ∧ is_prime p := by
   set M := factorial N + 1 with def_M
