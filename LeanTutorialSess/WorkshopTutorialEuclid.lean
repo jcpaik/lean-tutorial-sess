@@ -9,7 +9,7 @@ lemma nonzero_is_succ {n : ℕ} (hn : n ≠ 0) : ∃ n', n = n' + 1 := by
 def divides (a b : ℕ) : Prop := ∃ c : ℕ, b = a * c
 
 lemma divides_2_6 : divides 2 6 := by
-  -- rewrites equality
+  -- rewrites definition
   rw [divides]
   -- use a specific number for exists (∃) goal
   use 3
@@ -23,16 +23,16 @@ lemma not_divides_2_5 : ¬ divides 2 5 := by
   omega
 
 lemma divides_and : divides 2 4 ∧ divides 2 8 := by
-  constructor -- splits `and (∧)` or `iff (↔)` into two goals
-  · sorry
-  · sorry
+  constructor -- splits `and (∧)` into two goals
+  · use 2
+  · use 4
 
 lemma zero_divides_iff {n : ℕ} : divides 0 n ↔ n = 0 := by
   constructor
   · intro hn
     obtain ⟨m, hm⟩ := hn
-    -- `ring_nf` simplifies and expands multiplication over addition
-    ring_nf at hm
+    simp at hm
+    -- ring_nf at hm
     exact hm
   · intro hn
     rw [hn]
@@ -40,42 +40,70 @@ lemma zero_divides_iff {n : ℕ} : divides 0 n ↔ n = 0 := by
 
 lemma one_divides {n : ℕ} : divides 1 n := by
   use n
-  omega
+  simp
 
 lemma le_of_divides {n m : ℕ} (hm : m ≠ 0) : divides n m → n ≤ m := by
   intro hdiv
   obtain ⟨c, heq⟩ := hdiv
   by_cases hc : c = 0
-  · rw [hc] at heq
+  · -- `rw`, `ring_nf`, `exfalso`, `apply`, `exact`
+    rw [hc] at heq
     ring_nf at heq
-    contradiction
-  · sorry
+    exfalso
+    apply hm
+    exact heq
+  · have h := nonzero_is_succ hc
+    rcases h with ⟨n', hn'⟩
+    rw [heq, hn']
+    ring_nf
+    simp
 
 lemma divides_antisymm {n m : ℕ} (dnm : divides n m) (dmn : divides m n) : m = n := by
   by_cases hn : n = 0
-  · rw [hn] at dnm
+  · -- `rw [⟨equation⟩] at ⟨target⟩`
+    rw [hn] at dnm
     rw [zero_divides_iff] at dnm
     rw [hn, dnm]
   · by_cases hm : m = 0
-    · sorry
+    · -- `rw` only
+      rw [hm] at dmn
+      rw [zero_divides_iff] at dmn
+      rw [hm, dmn]
     · have n_le_m : n ≤ m := by
-        sorry
+        -- `apply` and `exact`
+        apply le_of_divides hm
+        exact dnm
       have m_le_n : m ≤ n := by
-        sorry
-      sorry
+        -- `apply` and `exact`
+        apply le_of_divides hn
+        exact dmn
+      omega
 
 lemma divides_one_iff {n : ℕ} : divides n 1 ↔ n = 1 := by
   constructor
   · intro h
     by_cases hn : n = 0
-    · sorry
-    · have h' : divides 1 n := one_divides
-      sorry
-  · sorry
+    · exfalso
+      -- `rw`, `obtain`, and `simp`
+      rw [divides] at h
+      obtain ⟨c, hc⟩ := h
+      rw [hn] at hc
+      simp at hc
+    · apply divides_antisymm
+      · exact one_divides
+      · exact h
+  · intro hn
+    rw [hn]
+    use 1
 
 lemma divides_trans {j k l : ℕ} (hjk : divides j k) (hkl : divides k l) : divides j l := by
-  obtain ⟨c, eq_jk⟩ := hjk
-  sorry
+  obtain ⟨c, eq_k⟩ := hjk
+  obtain ⟨d, eq_l⟩ := hkl
+  rw [divides]
+  use (c * d)
+  rw [eq_l]
+  rw [eq_k]
+  ring_nf
 
 def is_prime (p : ℕ) : Prop :=
   2 ≤ p ∧ ∀ n : ℕ, divides n p → n = 1 ∨ n = p
