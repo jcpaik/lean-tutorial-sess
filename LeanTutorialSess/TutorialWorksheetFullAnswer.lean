@@ -6,8 +6,6 @@ import Mathlib.NumberTheory.NumberField.ClassNumber
 import Mathlib.NumberTheory.Zsqrtd.GaussianInt
 
 /-
-# Part 1. Terms and Types.
-
 Lean is based on _type theory_.
 Each object in Lean is a term with a unique type attached to it.
 -/
@@ -34,6 +32,7 @@ Each object in Lean is a term with a unique type attached to it.
 -- Functions
 -- Type `\r` to write `→`
 #check (Nat.succ : ℕ → ℕ) -- Function that adds one
+#check Nat.succ
 #eval Nat.succ 3
 #check Nat.succ 3
 #check Nat.add -- Not of type (ℕ × ℕ) → ℕ
@@ -64,7 +63,7 @@ Each object in Lean is a term with a unique type attached to it.
 -- `\iff` → `↔`
 #check ∀ x : ℕ, x + 2 = 4 ↔ x = 2
 -- `\geq` → `≥`
-#check ∀ n ≥ 3, ∀ (a b c : ℕ), a^n + b^n = c^n → a = 0 ∧ b = 0 ∧ c = 0
+#check ∀ n : ℕ, n ≥ 3 → ∀ a : ℕ, ∀ b : ℕ, ∀ c : ℕ, a^n + b^n = c^n → a = 0 ∧ b = 0 ∧ c = 0
 
 -- Proofs
 
@@ -73,18 +72,18 @@ Each object in Lean is a term with a unique type attached to it.
 theorem two_two_four : 2 + 2 = 4 := by
   rfl -- checks definitional equality
 
--- `two_two_four` is a _proof term_
+-- The type of a theorem is its statement.
 #check two_two_four -- with type `2 + 2 = 4`
+#check 2 + 2 = 4
 
 -- Exercise: state and show `2 + 2 = 4 ∨ 2 + 2 = 5`.
 theorem two_two_four_or_five : 2 + 2 = 4 ∨ 2 + 2 = 5 := by
   left -- choose left as goal
   rfl
 
--- The type of `two_two_four_or_five` is:
+-- The type of a theorem is its statement.
 #check two_two_four_or_five
 
--- Exercise: state and show `2 + 2 = 4 ∨ 2 + 2 = 5`.
 -- type `\.` to write `·` (middle dot)
 theorem equals_and : 1 = 1 ∧ 2 = 2 := by
   constructor -- breaks down `∧` into two goals
@@ -101,11 +100,19 @@ theorem plus_two_is_four : ∀ x : ℕ, x = 2 → x + 2 = 4 := by
 theorem plus_two_is_four' (x : ℕ) (hx : x = 2) : x + 2 = 4 := by
   rw [hx]
 
+#check plus_two_is_four
+#check plus_two_is_four'
+
+-- Exercise: State Fermat's Last Theorem
+theorem fermat_last_theorem
+  (n : ℕ) (hn : 3 ≤ n)
+  (a b c : ℕ) (heq : a^n + b^n = c^n) : a = 0 ∧ b = 0 ∧ c = 0 := by sorry
+
 theorem equals_two (x : ℕ) (hx : x + 2 = 4) : x = 2 := by
   -- `have ⟨name⟩ : ⟨statement⟩ := by`
   have hx' : (x + 2) - 2 = 2 := by
     rw [hx]
-  simp at hx' -- or, `ring_nf` at hx'
+  simp at hx'
   exact hx' -- exactly assumption X
 
 theorem nat_add_comm (a b : ℕ) : a + b = b + a := by
